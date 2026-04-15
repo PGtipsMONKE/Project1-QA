@@ -1,0 +1,1 @@
+Special character file name for input folder testing.
