@@ -10,7 +10,10 @@ LOG_FILE = LOG_DIR / "process.log"
 
 
 def scan_files():
-    return list(INPUT_DIR.glob("*"))
+    return [
+        path for path in INPUT_DIR.glob("*")
+        if path.name != ".gitkeep"
+    ]
 
 def test_filename(filename: str):
     """Return a validation result and reason for a filename."""
@@ -65,6 +68,7 @@ def route_file(file_path: Path, valid: bool, classification: str) -> Path:
     destination_path = destination_dir / file_path.name
     return file_path.replace(destination_path)
 
+
 def write_log_entry(entry: dict):
     """Append a structured log entry to the process log."""
     LOG_DIR.mkdir(parents=True, exist_ok=True)
@@ -78,6 +82,7 @@ def write_log_entry(entry: dict):
         if write_header:
             log_file.write(header)
         log_file.write(line)
+
 
 def move_valid_and_invalid(validated):
     """Move validated files to processed or quarantine folders and log each action."""
@@ -105,17 +110,51 @@ def move_valid_and_invalid(validated):
     return moved
 
 
+def print_summary(files, moved_files, start_time):
+    total_files = len(files)
+    valid_count = sum(1 for entry in moved_files if entry["valid"])
+    invalid_count = total_files - valid_count
+    classification_counts = {}
+    invalid_reason_counts = {}
+
+    for entry in moved_files:
+        if entry["valid"]:
+            classification_counts[entry["classification"]] = classification_counts.get(entry["classification"], 0) + 1
+        else:
+            invalid_reason_counts[entry["reason"]] = invalid_reason_counts.get(entry["reason"], 0) + 1
+
+    elapsed = datetime.utcnow() - start_time
+
+    print("\nProcessing summary")
+    print("------------------")
+    print(f"Base directory: {BASE_DIR}")
+    print(f"Input folder: {INPUT_DIR.relative_to(BASE_DIR)}")
+    print(f"Processed folder: {PROCESSED_DIR.relative_to(BASE_DIR)}")
+    print(f"Quarantine folder: {QUARANTINE_DIR.relative_to(BASE_DIR)}")
+    print(f"Log file: {LOG_FILE.relative_to(BASE_DIR)}")
+    print(f"Total files scanned: {total_files}")
+    print(f"Valid files: {valid_count}")
+    print(f"Invalid files: {invalid_count}")
+
+    if classification_counts:
+        print("\nValid files by classification:")
+        for classification, count in sorted(classification_counts.items()):
+            print(f"  {classification}: {count}")
+
+    if invalid_reason_counts:
+        print("\nInvalid files by reason:")
+        for reason, count in sorted(invalid_reason_counts.items()):
+            print(f"  {reason}: {count}")
+
+    print(f"Elapsed time: {elapsed}")
+
 # Main execution flow
 def main():
+    start_time = datetime.utcnow()
     files = scan_files()
     validated = validate_files(files)
     moved_files = move_valid_and_invalid(validated)
-    valid_count = sum(1 for entry in moved_files if entry["valid"])
-    invalid_count = len(moved_files) - valid_count
-
-    print(f"Found {len(files)} files")
-    print(f"Valid files: {valid_count}")
-    print(f"Invalid files: {invalid_count}")
+    print_summary(files, moved_files, start_time)
 
 
 if __name__ == "__main__":
