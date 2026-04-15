@@ -1,3 +1,7 @@
+"""
+Quick Vibe Coded - File Restoration Script for easy Testing and Debugging
+"""
+
 from pathlib import Path
 import argparse
 
