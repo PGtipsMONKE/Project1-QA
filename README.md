@@ -13,6 +13,8 @@ For example: \
 
 If the file is missing or malformed, the loader falls back to built-in defaults and continues processing.
 
+The pipeline also auto-creates missing `data/input`, `data/processed`, and `data/quarantine` folders so it can run safely even when the workspace has not been initialized.
+
 The pipeline also exports a JSON summary file to `logs/summary.json` after each run.
 
 Supported configuration fields:
