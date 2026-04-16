@@ -6,9 +6,9 @@
   "quarantine_folder": "C:\\Users\\Ian_C\\Project1\\Project1-QA\\data\\quarantine",
   "log_file": "logs\\process.log",
   "summary_file": "logs\\summary.json",
-  "start_time": "2026-04-16T11:01:56.444176",
-  "end_time": "2026-04-16T11:01:56.456228",
-  "elapsed_seconds": 0.012052,
+  "start_time": "2026-04-16T13:31:02.752893",
+  "end_time": "2026-04-16T13:31:02.769039",
+  "elapsed_seconds": 0.016146,
   "total_files_scanned": 8,
   "ignored_files": [
     ".gitkeep"
@@ -31,5 +31,6 @@
     "@special#file!.txt",
     "randfile.txt",
     "summary_review_2026-07-01.md"
-  ]
+  ],
+  "warnings": []
 }
