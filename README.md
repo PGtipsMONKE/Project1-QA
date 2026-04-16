@@ -17,6 +17,13 @@ The pipeline also auto-creates missing `data/input`, `data/processed`, and `data
 
 The pipeline also exports a JSON summary file to `logs/summary.json` after each run.
 
+### Warnings
+The tool reports warnings in the console and includes them in the summary JSON under `warnings`.
+Common warning conditions include:
+- invalid or missing config file values
+- config keys with the wrong data type
+- log or summary write failures due to filesystem issues
+
 Supported configuration fields:
 - `required_parts`: integer count of filename parts separated by `filename_separator`
 - `filename_separator`: string to split the filename before extension
