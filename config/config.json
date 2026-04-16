@@ -1,0 +1,18 @@
+{
+  "required_parts": 3,
+  "filename_separator": "_",
+  "date_format": "%d-%b-%Y",
+  "allowed_extensions": [
+    "txt",
+    "csv",
+    "md"
+  ],
+  "ignore_files": [
+    ".gitkeep"
+  ],
+  "classification_prefixes": {
+    "invoice": "invoice",
+    "report": "report",
+    "notes": "notes"
+  }
+}
