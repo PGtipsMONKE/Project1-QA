@@ -42,6 +42,13 @@ def _unique_destination(path: Path) -> Path:
     return candidate
 
 
+def _safe_replace(source: Path, destination: Path):
+    try:
+        return source.replace(destination), ""
+    except OSError as exc:
+        return destination, f"filesystem error: {exc}"
+
+
 def route_file(file_path: Path, valid: bool, classification: str, rules: dict):
     """Move a file to the correct destination based on validation and classification."""
     duplicate_policy = rules.get("duplicate_policy", "quarantine")
@@ -51,27 +58,35 @@ def route_file(file_path: Path, valid: bool, classification: str, rules: dict):
         destination_path = destination_dir / file_path.name
         if destination_path.exists():
             if duplicate_policy == "overwrite":
-                return file_path.replace(destination_path), True, classification, ""
+                moved_path, error = _safe_replace(file_path, destination_path)
+                return (moved_path, False, "invalid", error) if error else (moved_path, True, classification, "")
             if duplicate_policy == "rename":
                 destination_path = _unique_destination(destination_path)
-                return file_path.replace(destination_path), True, classification, ""
+                moved_path, error = _safe_replace(file_path, destination_path)
+                return (moved_path, False, "invalid", error) if error else (moved_path, True, classification, "")
             # quarantine duplicates by rejecting later file
             destination_dir = QUARANTINE_DIR
             destination_dir.mkdir(parents=True, exist_ok=True)
             destination_path = destination_dir / file_path.name
             if destination_path.exists():
                 destination_path = _unique_destination(destination_path)
-            return file_path.replace(destination_path), False, "invalid", "duplicate filename"
-        return file_path.replace(destination_path), True, classification, ""
+            moved_path, error = _safe_replace(file_path, destination_path)
+            return (moved_path, False, "invalid", error or "duplicate filename")
+        moved_path, error = _safe_replace(file_path, destination_path)
+        return (moved_path, False, "invalid", error) if error else (moved_path, True, classification, "")
     destination_dir = QUARANTINE_DIR
     destination_dir.mkdir(parents=True, exist_ok=True)
     destination_path = destination_dir / file_path.name
     if destination_path.exists():
         if duplicate_policy == "overwrite":
-            return file_path.replace(destination_path), False, "invalid", ""
+            moved_path, error = _safe_replace(file_path, destination_path)
+            return (moved_path, False, "invalid", error) if error else (moved_path, False, "invalid", "")
         if duplicate_policy == "rename":
             destination_path = _unique_destination(destination_path)
-            return file_path.replace(destination_path), False, "invalid", ""
+            moved_path, error = _safe_replace(file_path, destination_path)
+            return (moved_path, False, "invalid", error) if error else (moved_path, False, "invalid", "")
         destination_path = _unique_destination(destination_path)
-        return file_path.replace(destination_path), False, "invalid", ""
-    return file_path.replace(destination_path), False, "invalid", ""
+        moved_path, error = _safe_replace(file_path, destination_path)
+        return (moved_path, False, "invalid", error) if error else (moved_path, False, "invalid", "")
+    moved_path, error = _safe_replace(file_path, destination_path)
+    return (moved_path, False, "invalid", error) if error else (moved_path, False, "invalid", "")

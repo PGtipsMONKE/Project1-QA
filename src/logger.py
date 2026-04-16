@@ -10,20 +10,24 @@ SUMMARY_FILE = LOG_DIR / "summary.json"
 
 def write_log_entry(entry: dict):
     """Append a structured log entry to the process log."""
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
-    header = "timestamp\tfilename\tsource_path\tstatus\tdestination_path\tclassification\treason\n"
-    line = (
-        f"{entry['timestamp']}\t{entry['filename']}\t{entry['source_path']}\t"
-        f"{entry['status']}\t{entry['destination_path']}\t{entry['classification']}\t{entry['reason']}\n"
-    )
-    write_header = not LOG_FILE.exists()
-    with LOG_FILE.open("a", encoding="utf-8") as log_file:
-        if write_header:
-            log_file.write(header)
-        log_file.write(line)
+    try:
+        LOG_DIR.mkdir(parents=True, exist_ok=True)
+        header = "timestamp\tfilename\tsource_path\tstatus\tdestination_path\tclassification\treason\n"
+        line = (
+            f"{entry['timestamp']}\t{entry['filename']}\t{entry['source_path']}\t"
+            f"{entry['status']}\t{entry['destination_path']}\t{entry['classification']}\t{entry['reason']}\n"
+        )
+        write_header = not LOG_FILE.exists()
+        with LOG_FILE.open("a", encoding="utf-8") as log_file:
+            if write_header:
+                log_file.write(header)
+            log_file.write(line)
+    except OSError as exc:
+        print(f"Warning: could not write log entry to {LOG_FILE}: {exc}")
 
 
-def generate_summary(files, moved_files, start_time, rules_source, ignored_files):
+def generate_summary(files, moved_files, start_time, rules_source, ignored_files, warnings=None):
+    warnings = warnings or []
     total_files = len(files)
     valid_count = sum(1 for entry in moved_files if entry["valid"])
     invalid_count = total_files - valid_count
@@ -63,11 +67,12 @@ def generate_summary(files, moved_files, start_time, rules_source, ignored_files
         "valid_files_by_classification": classification_counts,
         "invalid_files_by_reason": invalid_reason_counts,
         "top_invalid_filenames": invalid_filenames[:5],
+        "warnings": warnings,
     }
 
 
-def print_summary(files, moved_files, start_time, rules_source, ignored_files):
-    summary = generate_summary(files, moved_files, start_time, rules_source, ignored_files)
+def print_summary(files, moved_files, start_time, rules_source, ignored_files, warnings=None):
+    summary = generate_summary(files, moved_files, start_time, rules_source, ignored_files, warnings)
 
     print("\nProcessing summary")
     print("------------------")
@@ -101,6 +106,11 @@ def print_summary(files, moved_files, start_time, rules_source, ignored_files):
         for reason, count in sorted(summary['invalid_files_by_reason'].items()):
             print(f"  {reason}: {count}")
 
+    if summary['warnings']:
+        print("\nWarnings:")
+        for warning in summary['warnings']:
+            print(f"  {warning}")
+
     if summary['top_invalid_filenames']:
         print(f"\nTop {len(summary['top_invalid_filenames'])} invalid filenames:")
         for filename in summary['top_invalid_filenames']:
@@ -111,9 +121,12 @@ def print_summary(files, moved_files, start_time, rules_source, ignored_files):
 
 
 def write_summary_file(summary, path=SUMMARY_FILE):
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
-    if isinstance(path, str):
-        path = Path(path)
-    with path.open("w", encoding="utf-8") as summary_file:
-        json.dump(summary, summary_file, indent=2)
+    try:
+        LOG_DIR.mkdir(parents=True, exist_ok=True)
+        if isinstance(path, str):
+            path = Path(path)
+        with path.open("w", encoding="utf-8") as summary_file:
+            json.dump(summary, summary_file, indent=2)
+    except OSError as exc:
+        print(f"Warning: could not write summary file {path}: {exc}")
     return path

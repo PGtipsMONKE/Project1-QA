@@ -36,16 +36,21 @@ def move_valid_and_invalid(validated, rules):
 
 def main():
     start_time = datetime.utcnow()
-    rules, rules_source = load_rules_from_config()
-    ensure_data_directories()
-    files = scan_files(rules)
-    ignored_files = find_ignored_files(rules)
-    validated = validate_files(files, rules)
-    moved_files = move_valid_and_invalid(validated, rules)
-    summary = print_summary(files, moved_files, start_time, rules_source, ignored_files)
-    summary_file = write_summary_file(summary)
-    print(f"Summary file written: {summary_file}")
+    try:
+        rules, rules_source, config_warnings = load_rules_from_config()
+        ensure_data_directories()
+        files = scan_files(rules)
+        ignored_files = find_ignored_files(rules)
+        validated = validate_files(files, rules)
+        moved_files = move_valid_and_invalid(validated, rules)
+        summary = print_summary(files, moved_files, start_time, rules_source, ignored_files, config_warnings)
+        summary_file = write_summary_file(summary)
+        print(f"Summary file written: {summary_file}")
+        return 0
+    except Exception as exc:
+        print(f"Error: fatal exception during processing: {exc}")
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
