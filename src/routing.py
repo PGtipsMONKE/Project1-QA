@@ -6,7 +6,14 @@ PROCESSED_DIR = BASE_DIR / "data" / "processed"
 QUARANTINE_DIR = BASE_DIR / "data" / "quarantine"
 
 
+def ensure_data_directories():
+    """Create the required data folders so missing directories do not crash the app."""
+    for folder in (INPUT_DIR, PROCESSED_DIR, QUARANTINE_DIR):
+        folder.mkdir(parents=True, exist_ok=True)
+
+
 def scan_files(rules):
+    ensure_data_directories()
     ignored = set(rules.get("ignore_files", []))
     return [
         path for path in INPUT_DIR.glob("*")
@@ -15,6 +22,7 @@ def scan_files(rules):
 
 
 def find_ignored_files(rules):
+    ensure_data_directories()
     ignored = set(rules.get("ignore_files", []))
     return [
         path for path in INPUT_DIR.glob("*")

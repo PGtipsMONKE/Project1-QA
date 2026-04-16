@@ -6,16 +6,30 @@
   "quarantine_folder": "C:\\Users\\Ian_C\\Project1\\Project1-QA\\data\\quarantine",
   "log_file": "logs\\process.log",
   "summary_file": "logs\\summary.json",
-  "start_time": "2026-04-16T10:09:11.975805",
-  "end_time": "2026-04-16T10:09:11.975805",
-  "elapsed_seconds": 0.0,
-  "total_files_scanned": 0,
-  "ignored_files": [],
-  "processed_files": 0,
-  "quarantined_files": 0,
-  "valid_rate": 0,
-  "invalid_rate": 0,
-  "valid_files_by_classification": {},
-  "invalid_files_by_reason": {},
-  "top_invalid_filenames": []
+  "start_time": "2026-04-16T11:01:56.444176",
+  "end_time": "2026-04-16T11:01:56.456228",
+  "elapsed_seconds": 0.012052,
+  "total_files_scanned": 8,
+  "ignored_files": [
+    ".gitkeep"
+  ],
+  "processed_files": 4,
+  "quarantined_files": 4,
+  "valid_rate": 50.0,
+  "invalid_rate": 50.0,
+  "valid_files_by_classification": {
+    "other": 1,
+    "notes": 2,
+    "report": 1
+  },
+  "invalid_files_by_reason": {
+    "incorrect filename structure": 3,
+    "invalid date format": 1
+  },
+  "top_invalid_filenames": [
+    ".hidden_test.md",
+    "@special#file!.txt",
+    "randfile.txt",
+    "summary_review_2026-07-01.md"
+  ]
 }

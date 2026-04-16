@@ -2,7 +2,7 @@ from datetime import datetime
 
 from config import load_rules_from_config
 from logger import print_summary, write_log_entry, write_summary_file
-from routing import find_ignored_files, route_file, scan_files
+from routing import ensure_data_directories, find_ignored_files, route_file, scan_files
 from validation import classify_file, validate_files
 
 
@@ -37,6 +37,7 @@ def move_valid_and_invalid(validated, rules):
 def main():
     start_time = datetime.utcnow()
     rules, rules_source = load_rules_from_config()
+    ensure_data_directories()
     files = scan_files(rules)
     ignored_files = find_ignored_files(rules)
     validated = validate_files(files, rules)
