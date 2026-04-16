@@ -11,20 +11,21 @@ def move_valid_and_invalid(validated, rules):
     moved = []
     for entry in validated:
         classification = classify_file(entry["path"].name, rules) if entry["valid"] else "invalid"
-        destination = route_file(entry["path"], entry["valid"], classification)
+        destination, routed_valid, routed_classification, override_reason = route_file(entry["path"], entry["valid"], classification, rules)
+        reason = override_reason or entry["reason"] or "accepted"
         result = {
             "filename": entry["path"].name,
             "path": destination,
-            "valid": entry["valid"],
-            "classification": classification,
-            "reason": entry["reason"] or "accepted",
+            "valid": routed_valid,
+            "classification": routed_classification,
+            "reason": reason,
             "source_path": str(entry["path"]),
         }
         write_log_entry({
             "timestamp": datetime.utcnow().isoformat(),
             "filename": entry["path"].name,
             "source_path": result["source_path"],
-            "status": "valid" if entry["valid"] else "invalid",
+            "status": "valid" if result["valid"] else "invalid",
             "destination_path": str(destination),
             "classification": result["classification"],
             "reason": result["reason"],

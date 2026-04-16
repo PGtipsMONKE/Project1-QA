@@ -15,7 +15,8 @@ DEFAULT_RULES = {
         "invoice": "invoice",
         "report": "report",
         "notes": "notes"
-    }
+    },
+    "duplicate_policy": "quarantine"
 }
 
 
@@ -64,5 +65,8 @@ def load_rules_from_config():
         for prefix, classification in config["classification_prefixes"].items()
     ):
         rules["classification_prefixes"] = config["classification_prefixes"].copy()
+
+    if isinstance(config.get("duplicate_policy"), str) and config["duplicate_policy"] in {"quarantine", "overwrite", "rename"}:
+        rules["duplicate_policy"] = config["duplicate_policy"]
 
     return rules, "config file"
