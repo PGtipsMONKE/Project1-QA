@@ -13,6 +13,8 @@ For example: \
 
 If the file is missing or malformed, the loader falls back to built-in defaults and continues processing.
 
+The pipeline also exports a JSON summary file to `logs/summary.json` after each run.
+
 Supported configuration fields:
 - `required_parts`: integer count of filename parts separated by `filename_separator`
 - `filename_separator`: string to split the filename before extension
