@@ -55,3 +55,33 @@ Example `config/config.json`:
   }
 }
 ```
+
+## Bash scripts for container use
+
+The scripts in `scripts/` are container-safe and resolve paths relative to the repository root, so they can be run from any working directory.
+
+- `scripts/run_fileflow.sh`
+  - Runs the pipeline with strict shell settings.
+  - Creates required data/log directories if they do not exist.
+  - Supports `PYTHON_BIN` override (default: `python3`).
+
+- `scripts/reset_demo_data.sh`
+  - Restores files from `data/processed` and `data/quarantine` back to `data/input` via `undo.py`.
+  - Options:
+    - `--force`: overwrite existing files in `data/input`.
+    - `--no-clean-logs`: keep `logs/process.log` and `logs/summary.json`.
+  - Supports `PYTHON_BIN` override (default: `python3`).
+
+- `scripts/backup_reports.sh`
+  - Creates a timestamped `tar.gz` archive containing `logs/` and `reports/`.
+  - Excludes existing backup archives under `reports/backups/`.
+  - Supports `BACKUP_DIR` override (default: `reports/backups`).
+
+Example in a Linux container:
+
+```bash
+chmod +x scripts/*.sh
+./scripts/run_fileflow.sh
+./scripts/backup_reports.sh
+./scripts/reset_demo_data.sh --force
+```

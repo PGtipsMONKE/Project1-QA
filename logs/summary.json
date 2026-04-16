@@ -1,14 +1,14 @@
 {
   "config_rules_source": "config file",
-  "base_directory": "C:\\Users\\Ian_C\\Project1\\Project1-QA",
-  "input_folder": "C:\\Users\\Ian_C\\Project1\\Project1-QA\\data\\input",
-  "processed_folder": "C:\\Users\\Ian_C\\Project1\\Project1-QA\\data\\processed",
-  "quarantine_folder": "C:\\Users\\Ian_C\\Project1\\Project1-QA\\data\\quarantine",
+  "base_directory": "C:\\Users\\Ian_C\\Project1\\fileflow",
+  "input_folder": "C:\\Users\\Ian_C\\Project1\\fileflow\\data\\input",
+  "processed_folder": "C:\\Users\\Ian_C\\Project1\\fileflow\\data\\processed",
+  "quarantine_folder": "C:\\Users\\Ian_C\\Project1\\fileflow\\data\\quarantine",
   "log_file": "logs\\process.log",
   "summary_file": "logs\\summary.json",
-  "start_time": "2026-04-16T13:31:02.752893",
-  "end_time": "2026-04-16T13:31:02.769039",
-  "elapsed_seconds": 0.016146,
+  "start_time": "2026-04-16T14:50:45.294164",
+  "end_time": "2026-04-16T14:50:45.310784",
+  "elapsed_seconds": 0.01662,
   "total_files_scanned": 8,
   "ignored_files": [
     ".gitkeep"

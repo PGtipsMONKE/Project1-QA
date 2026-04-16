@@ -4,4 +4,6 @@ WORKDIR /app
 
 COPY . .
 
-CMD ["python", "src/main.py"]
+RUN chmod +x scripts/*.sh
+
+ENTRYPOINT ["./scripts/run_fileflow.sh"]
