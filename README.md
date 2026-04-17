@@ -17,6 +17,25 @@ The pipeline also auto-creates missing `data/input`, `data/processed`, and `data
 
 The pipeline also exports a JSON summary file to `logs/summary.json` after each run.
 
+The pipeline writes per-file and lifecycle events to:
+- `logs/process.log` as tab-separated rows (TSV)
+- `logs/process.jsonl` as JSON Lines (one JSON object per event)
+- `logs/process.pretty.log` as fixed-width aligned columns for easier human scanning
+
+`process.log` columns:
+- `timestamp`
+- `run_id`
+- `event_type`
+- `filename`
+- `source_path`
+- `status`
+- `archived`
+- `destination_bucket`
+- `destination_path`
+- `classification`
+- `reason_code`
+- `reason_detail`
+
 ### Warnings
 The tool reports warnings in the console and includes them in the summary JSON under `warnings`.
 Common warning conditions include:
