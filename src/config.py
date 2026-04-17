@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 
 CONFIG_FILE = Path(__file__).resolve().parent.parent / "config" / "config.json"
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEFAULT_RULES = {
     "required_parts": 3,
@@ -22,31 +23,35 @@ DEFAULT_RULES = {
 }
 
 
-def load_rules_from_config():
-    """Load rule configuration from config/config.json, or return defaults."""
+def load_rules_from_config(config_path=None):
+    """Load rule configuration from a JSON file, or return defaults."""
     warnings = []
-    if not CONFIG_FILE.exists():
-        message = f"Config file not found at {CONFIG_FILE}. Using built-in defaults."
+    config_file = Path(config_path) if config_path else CONFIG_FILE
+    if config_path and not config_file.is_absolute():
+        config_file = BASE_DIR / config_file
+
+    if not config_file.exists():
+        message = f"Config file not found at {config_file}. Using built-in defaults."
         print(message)
         warnings.append(message)
         return DEFAULT_RULES.copy(), "built-in defaults", warnings
 
     try:
-        with CONFIG_FILE.open("r", encoding="utf-8") as config_file:
-            config = json.load(config_file)
+        with config_file.open("r", encoding="utf-8") as config_handle:
+            config = json.load(config_handle)
     except json.JSONDecodeError as exc:
-        message = f"Warning: could not parse config file {CONFIG_FILE}: {exc}. Using built-in defaults."
+        message = f"Warning: could not parse config file {config_file}: {exc}. Using built-in defaults."
         print(message)
         warnings.append(message)
         return DEFAULT_RULES.copy(), "built-in defaults", warnings
     except Exception as exc:
-        message = f"Warning: could not read config file {CONFIG_FILE}: {exc}. Using built-in defaults."
+        message = f"Warning: could not read config file {config_file}: {exc}. Using built-in defaults."
         print(message)
         warnings.append(message)
         return DEFAULT_RULES.copy(), "built-in defaults", warnings
 
     if not isinstance(config, dict):
-        message = f"Warning: config file {CONFIG_FILE} must contain a JSON object. Using built-in defaults."
+        message = f"Warning: config file {config_file} must contain a JSON object. Using built-in defaults."
         print(message)
         warnings.append(message)
         return DEFAULT_RULES.copy(), "built-in defaults", warnings
@@ -129,4 +134,4 @@ def load_rules_from_config():
         print(message)
         warnings.append(message)
 
-    return rules, "config file", warnings
+    return rules, f"config file ({config_file})", warnings

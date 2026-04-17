@@ -16,7 +16,7 @@ Restore processed and quarantined files back into data/input.
 
 Options:
 	--force          Overwrite existing files in data/input.
-	--no-clean-logs  Keep logs/process.log and logs/summary.json.
+	--no-clean-logs  Keep all generated log files and summary output.
 	-h, --help       Show this help message.
 EOF
 }
@@ -59,8 +59,12 @@ cd "${PROJECT_ROOT}"
 "${PYTHON_BIN}" "${PROJECT_ROOT}/undo.py" "${UNDO_ARGS[@]}"
 
 if [[ "${CLEAN_LOGS}" == "true" ]]; then
-	rm -f "${PROJECT_ROOT}/logs/process.log" "${PROJECT_ROOT}/logs/summary.json"
-	echo "Cleared logs/process.log and logs/summary.json"
+	rm -f \
+		"${PROJECT_ROOT}/logs/process.log" \
+		"${PROJECT_ROOT}/logs/process.jsonl" \
+		"${PROJECT_ROOT}/logs/process.pretty.log" \
+		"${PROJECT_ROOT}/logs/summary.json"
+	echo "Cleared logs/process.log, logs/process.jsonl, logs/process.pretty.log, and logs/summary.json"
 fi
 
 echo "Demo data reset complete."

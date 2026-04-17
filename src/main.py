@@ -1,3 +1,4 @@
+import argparse
 from datetime import UTC, datetime
 from uuid import uuid4
 
@@ -7,7 +8,7 @@ from routing import ensure_data_directories, find_ignored_files, route_file, sca
 from validation import classify_file, validate_files
 
 
-def move_valid_and_invalid(validated, rules, run_id):
+def move_valid_and_invalid(validated, rules, run_id, dry_run=False):
     """Move validated files to processed or quarantine folders and log each action."""
     moved = []
     archive_before_date = rules.get("archive_before_date")
@@ -25,10 +26,15 @@ def move_valid_and_invalid(validated, rules, run_id):
             classification,
             rules,
             archive_valid=archive_valid,
+            dry_run=dry_run,
         )
         reason = override_reason or entry["reason"] or "accepted"
+        if dry_run:
+            reason = f"dry-run: {reason}"
         if archived and not override_reason:
             reason = f"archived: file date before cutoff ({archive_before_date.isoformat()})"
+            if dry_run:
+                reason = f"dry-run: {reason}"
         result = {
             "filename": entry["path"].name,
             "path": destination,
@@ -61,7 +67,28 @@ def move_valid_and_invalid(validated, rules, run_id):
     return moved
 
 
-def main():
+def parse_args(argv=None):
+    parser = argparse.ArgumentParser(description="Process files from data/input into processed/archive/quarantine.")
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Validate and compute destinations without moving files.",
+    )
+    parser.add_argument(
+        "--config",
+        default=None,
+        help="Path to a JSON config file (relative paths resolve from project root).",
+    )
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Treat configuration warnings as fatal errors.",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv=None):
+    args = parse_args(argv)
     start_time = datetime.now(UTC)
     run_id = uuid4().hex
     try:
@@ -70,13 +97,16 @@ def main():
             "run_id": run_id,
             "event_type": "run_start",
             "status": "started",
+            "reason_detail": f"dry_run={args.dry_run} strict={args.strict}",
         })
-        rules, rules_source, config_warnings = load_rules_from_config()
+        rules, rules_source, config_warnings = load_rules_from_config(args.config)
+        if args.strict and config_warnings:
+            raise RuntimeError("strict mode enabled and configuration warnings were found")
         ensure_data_directories()
         files = scan_files(rules)
         ignored_files = find_ignored_files(rules)
         validated = validate_files(files, rules)
-        moved_files = move_valid_and_invalid(validated, rules, run_id)
+        moved_files = move_valid_and_invalid(validated, rules, run_id, dry_run=args.dry_run)
         summary = print_summary(files, moved_files, start_time, rules_source, ignored_files, config_warnings, run_id=run_id)
         summary_file = write_summary_file(summary)
         write_log_entry({
@@ -84,7 +114,10 @@ def main():
             "run_id": run_id,
             "event_type": "run_end",
             "status": "completed",
-            "reason_detail": f"processed={summary['processed_files']} archived={summary['archived_files']} quarantined={summary['quarantined_files']}",
+            "reason_detail": (
+                f"processed={summary['processed_files']} archived={summary['archived_files']} "
+                f"quarantined={summary['quarantined_files']} dry_run={args.dry_run}"
+            ),
         })
         print(f"Summary file written: {summary_file}")
         return 0

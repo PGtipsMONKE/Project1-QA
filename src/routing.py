@@ -63,7 +63,7 @@ def _move_to_quarantine(file_path: Path, duplicate_policy: str):
     return _safe_replace(file_path, destination_path)
 
 
-def route_file(file_path: Path, valid: bool, classification: str, rules: dict, archive_valid: bool = False):
+def route_file(file_path: Path, valid: bool, classification: str, rules: dict, archive_valid: bool = False, dry_run: bool = False):
     """Route a file to processed/archive/quarantine and return routing metadata.
 
     Returns:
@@ -75,13 +75,16 @@ def route_file(file_path: Path, valid: bool, classification: str, rules: dict, a
     # Valid files go to either archive (date cutoff) or classification-specific processed folder.
     if valid:
         destination_dir = ARCHIVE_DIR if archive_valid else PROCESSED_DIR / classification
-        destination_dir.mkdir(parents=True, exist_ok=True)
+        if not dry_run:
+            destination_dir.mkdir(parents=True, exist_ok=True)
         destination_path = destination_dir / file_path.name
 
         # Duplicate handling is controlled by config policy.
         if destination_path.exists():
             # overwrite: keep this file as valid and replace existing destination.
             if duplicate_policy == "overwrite":
+                if dry_run:
+                    return _route_result(destination_path, True, classification, "", archive_valid)
                 moved_path, error = _safe_replace(file_path, destination_path)
                 if error:
                     return _route_result(moved_path, False, "invalid", error, False)
@@ -89,22 +92,36 @@ def route_file(file_path: Path, valid: bool, classification: str, rules: dict, a
             # rename: keep this file as valid under a unique destination name.
             if duplicate_policy == "rename":
                 destination_path = _unique_destination(destination_path)
+                if dry_run:
+                    return _route_result(destination_path, True, classification, "", archive_valid)
                 moved_path, error = _safe_replace(file_path, destination_path)
                 if error:
                     return _route_result(moved_path, False, "invalid", error, False)
                 return _route_result(moved_path, True, classification, "", archive_valid)
 
             # duplicate_policy == "quarantine": reject the later duplicate.
+            if dry_run:
+                quarantine_destination = QUARANTINE_DIR / file_path.name
+                if quarantine_destination.exists() and duplicate_policy != "overwrite":
+                    quarantine_destination = _unique_destination(quarantine_destination)
+                return _route_result(quarantine_destination, False, "invalid", "duplicate filename", False)
             moved_path, error = _move_to_quarantine(file_path, duplicate_policy)
             return _route_result(moved_path, False, "invalid", error or "duplicate filename", False)
 
         # Non-duplicate valid file: direct move to selected destination.
+        if dry_run:
+            return _route_result(destination_path, True, classification, "", archive_valid)
         moved_path, error = _safe_replace(file_path, destination_path)
         if error:
             return _route_result(moved_path, False, "invalid", error, False)
         return _route_result(moved_path, True, classification, "", archive_valid)
 
     # Invalid files always go to quarantine regardless of classification.
+    if dry_run:
+        quarantine_destination = QUARANTINE_DIR / file_path.name
+        if quarantine_destination.exists() and duplicate_policy != "overwrite":
+            quarantine_destination = _unique_destination(quarantine_destination)
+        return _route_result(quarantine_destination, False, "invalid", "", False)
     moved_path, error = _move_to_quarantine(file_path, duplicate_policy)
     if error:
         return _route_result(moved_path, False, "invalid", error, False)
