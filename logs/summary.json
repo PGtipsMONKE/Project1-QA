@@ -1,5 +1,5 @@
 {
-  "run_id": "3ba766dda1eb41f7b9ec94fb5a097c6b",
+  "run_id": "aac7c0a7041d4ae0bcdeb4805ec154ec",
   "config_rules_source": "config file",
   "base_directory": "C:\\Users\\Ian_C\\Project1\\fileflow",
   "input_folder": "C:\\Users\\Ian_C\\Project1\\fileflow\\data\\input",
@@ -10,32 +10,33 @@
   "log_jsonl_file": "logs\\process.jsonl",
   "log_pretty_file": "logs\\process.pretty.log",
   "summary_file": "logs\\summary.json",
-  "start_time": "2026-04-17T09:31:29.628265",
-  "end_time": "2026-04-17T09:31:29.646586",
-  "elapsed_seconds": 0.018321,
-  "total_files_scanned": 8,
+  "start_time": "2026-04-17T10:56:22.869032+00:00",
+  "end_time": "2026-04-17T10:56:23.505195+00:00",
+  "elapsed_seconds": 0.636163,
+  "total_files_scanned": 408,
   "ignored_files": [
     ".gitkeep"
   ],
-  "processed_files": 4,
-  "archived_files": 0,
-  "quarantined_files": 4,
-  "valid_rate": 50.0,
-  "invalid_rate": 50.0,
+  "processed_files": 188,
+  "archived_files": 136,
+  "quarantined_files": 84,
+  "valid_rate": 79.4,
+  "invalid_rate": 20.6,
   "valid_files_by_classification": {
     "other": 1,
-    "notes": 2,
-    "report": 1
+    "notes": 182,
+    "report": 141
   },
   "invalid_files_by_reason": {
-    "incorrect filename structure": 3,
-    "invalid date format": 1
+    "incorrect filename structure": 23,
+    "invalid date format": 61
   },
   "top_invalid_filenames": [
     ".hidden_test.md",
     "@special#file!.txt",
-    "randfile.txt",
-    "summary_review_2026-07-01.md"
+    "badfile_volume_1.data",
+    "badfile_volume_10.data",
+    "badfile_volume_11.data"
   ],
   "warnings": []
 }

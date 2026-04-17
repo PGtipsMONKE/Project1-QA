@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -54,7 +54,7 @@ def _write_pretty_log_row(normalized: dict):
 def _normalized_log_entry(entry: dict):
     """Normalize event payloads so both TSV and JSONL have a stable schema."""
     return {
-        "timestamp": entry.get("timestamp", datetime.utcnow().isoformat() + "Z"),
+        "timestamp": entry.get("timestamp", datetime.now(UTC).isoformat().replace("+00:00", "Z")),
         "run_id": entry.get("run_id", ""),
         "event_type": entry.get("event_type", "file_routed"),
         "filename": entry.get("filename", ""),
@@ -126,7 +126,7 @@ def generate_summary(files, moved_files, start_time, rules_source, ignored_files
             invalid_reason_counts[entry["reason"]] = invalid_reason_counts.get(entry["reason"], 0) + 1
             invalid_filenames.append(entry["filename"])
 
-    end_time = datetime.utcnow()
+    end_time = datetime.now(UTC)
     elapsed = end_time - start_time
     valid_rate = (valid_count / total_files * 100) if total_files else 0
     invalid_rate = (invalid_count / total_files * 100) if total_files else 0
@@ -135,10 +135,10 @@ def generate_summary(files, moved_files, start_time, rules_source, ignored_files
         "run_id": run_id,
         "config_rules_source": rules_source,
         "base_directory": str(BASE_DIR),
-        "input_folder": str(Path(__file__).resolve().parent.parent / "data" / "input"),
-        "archive_folder": str(Path(__file__).resolve().parent.parent / "data" / "archive"),
-        "processed_folder": str(Path(__file__).resolve().parent.parent / "data" / "processed"),
-        "quarantine_folder": str(Path(__file__).resolve().parent.parent / "data" / "quarantine"),
+        "input_folder": str(BASE_DIR / "data" / "input"),
+        "archive_folder": str(BASE_DIR / "data" / "archive"),
+        "processed_folder": str(BASE_DIR / "data" / "processed"),
+        "quarantine_folder": str(BASE_DIR / "data" / "quarantine"),
         "log_file": str(LOG_FILE.relative_to(BASE_DIR)),
         "log_jsonl_file": str(LOG_JSONL_FILE.relative_to(BASE_DIR)),
         "log_pretty_file": str(LOG_PRETTY_FILE.relative_to(BASE_DIR)),

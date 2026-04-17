@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from uuid import uuid4
 
 from config import load_rules_from_config
@@ -44,7 +44,7 @@ def move_valid_and_invalid(validated, rules, run_id):
         elif result["valid"]:
             destination_bucket = "processed"
         write_log_entry({
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             "run_id": run_id,
             "event_type": "file_routed",
             "filename": entry["path"].name,
@@ -62,11 +62,11 @@ def move_valid_and_invalid(validated, rules, run_id):
 
 
 def main():
-    start_time = datetime.utcnow()
+    start_time = datetime.now(UTC)
     run_id = uuid4().hex
     try:
         write_log_entry({
-            "timestamp": start_time.isoformat() + "Z",
+            "timestamp": start_time.isoformat().replace("+00:00", "Z"),
             "run_id": run_id,
             "event_type": "run_start",
             "status": "started",
@@ -80,7 +80,7 @@ def main():
         summary = print_summary(files, moved_files, start_time, rules_source, ignored_files, config_warnings, run_id=run_id)
         summary_file = write_summary_file(summary)
         write_log_entry({
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             "run_id": run_id,
             "event_type": "run_end",
             "status": "completed",
@@ -90,7 +90,7 @@ def main():
         return 0
     except Exception as exc:
         write_log_entry({
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
             "run_id": run_id,
             "event_type": "run_end",
             "status": "failed",
