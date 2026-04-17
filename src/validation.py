@@ -36,6 +36,18 @@ def classify_file(filename: str, rules: dict) -> str:
     return "other"
 
 
+def extract_file_date(filename: str, rules: dict):
+    """Parse and return the date component from a valid filename, or None."""
+    try:
+        name, _ = filename.rsplit(".", 1)
+        parts = name.split(rules["filename_separator"])
+        if len(parts) != rules["required_parts"]:
+            return None
+        return datetime.strptime(parts[2], rules["date_format"]).date()
+    except Exception:
+        return None
+
+
 def validate_files(files, rules):
     """Validate a list of file paths and return a validation summary."""
     validated = []
@@ -45,5 +57,6 @@ def validate_files(files, rules):
             "path": file_path,
             "valid": valid,
             "reason": reason,
+            "file_date": extract_file_date(file_path.name, rules) if valid else None,
         })
     return validated

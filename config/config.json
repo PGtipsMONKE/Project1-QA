@@ -7,6 +7,7 @@
     "csv",
     "md"
   ],
+  "archive_before_date": "01-Jan-2026",
   "duplicate_policy": "quarantine",
   "ignore_files": [
     ".gitkeep"

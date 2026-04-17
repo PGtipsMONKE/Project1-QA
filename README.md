@@ -17,6 +17,25 @@ The pipeline also auto-creates missing `data/input`, `data/processed`, and `data
 
 The pipeline also exports a JSON summary file to `logs/summary.json` after each run.
 
+The pipeline writes per-file and lifecycle events to:
+- `logs/process.log` as tab-separated rows (TSV)
+- `logs/process.jsonl` as JSON Lines (one JSON object per event)
+- `logs/process.pretty.log` as fixed-width aligned columns for easier human scanning
+
+`process.log` columns:
+- `timestamp`
+- `run_id`
+- `event_type`
+- `filename`
+- `source_path`
+- `status`
+- `archived`
+- `destination_bucket`
+- `destination_path`
+- `classification`
+- `reason_code`
+- `reason_detail`
+
 ### Warnings
 The tool reports warnings in the console and includes them in the summary JSON under `warnings`.
 Common warning conditions include:
@@ -29,6 +48,7 @@ Supported configuration fields:
 - `filename_separator`: string to split the filename before extension
 - `date_format`: date parsing format for the final filename segment
 - `allowed_extensions`: optional list of extension values without leading dots
+- `archive_before_date`: optional date string matching `date_format`; valid files older than this date go to `data/archive` instead of `data/processed` (use `null` to disable)
 - `duplicate_policy`: what to do when a destination file already exists; one of `quarantine`, `overwrite`, or `rename`
 - `ignore_files`: optional list of input names to skip when scanning
 - `classification_prefixes`: prefix-to-classification mapping used by `classify_file()`
@@ -44,6 +64,7 @@ Example `config/config.json`:
     "csv",
     "md"
   ],
+  "archive_before_date": null,
   "duplicate_policy": "quarantine",
   "ignore_files": [
     ".gitkeep"
