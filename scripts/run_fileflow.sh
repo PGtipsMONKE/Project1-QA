@@ -15,6 +15,7 @@ mkdir -p \
 	"${PROJECT_ROOT}/data/input" \
 	"${PROJECT_ROOT}/data/processed" \
 	"${PROJECT_ROOT}/data/quarantine" \
+	"${PROJECT_ROOT}/data/archive" \
 	"${PROJECT_ROOT}/logs"
 
 cd "${PROJECT_ROOT}"

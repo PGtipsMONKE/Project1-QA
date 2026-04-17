@@ -9,10 +9,25 @@ from validation import classify_file, validate_files
 def move_valid_and_invalid(validated, rules):
     """Move validated files to processed or quarantine folders and log each action."""
     moved = []
+    archive_before_date = rules.get("archive_before_date")
     for entry in validated:
         classification = classify_file(entry["path"].name, rules) if entry["valid"] else "invalid"
-        destination, routed_valid, routed_classification, override_reason = route_file(entry["path"], entry["valid"], classification, rules)
+        archive_valid = (
+            entry["valid"]
+            and archive_before_date is not None
+            and entry.get("file_date") is not None
+            and entry["file_date"] < archive_before_date
+        )
+        destination, routed_valid, routed_classification, override_reason, archived = route_file(
+            entry["path"],
+            entry["valid"],
+            classification,
+            rules,
+            archive_valid=archive_valid,
+        )
         reason = override_reason or entry["reason"] or "accepted"
+        if archived and not override_reason:
+            reason = f"archived: file date before cutoff ({archive_before_date.isoformat()})"
         result = {
             "filename": entry["path"].name,
             "path": destination,
@@ -20,6 +35,7 @@ def move_valid_and_invalid(validated, rules):
             "classification": routed_classification,
             "reason": reason,
             "source_path": str(entry["path"]),
+            "archived": archived,
         }
         write_log_entry({
             "timestamp": datetime.utcnow().isoformat(),

@@ -29,6 +29,7 @@ Supported configuration fields:
 - `filename_separator`: string to split the filename before extension
 - `date_format`: date parsing format for the final filename segment
 - `allowed_extensions`: optional list of extension values without leading dots
+- `archive_before_date`: optional date string matching `date_format`; valid files older than this date go to `data/archive` instead of `data/processed` (use `null` to disable)
 - `duplicate_policy`: what to do when a destination file already exists; one of `quarantine`, `overwrite`, or `rename`
 - `ignore_files`: optional list of input names to skip when scanning
 - `classification_prefixes`: prefix-to-classification mapping used by `classify_file()`
@@ -44,6 +45,7 @@ Example `config/config.json`:
     "csv",
     "md"
   ],
+  "archive_before_date": null,
   "duplicate_policy": "quarantine",
   "ignore_files": [
     ".gitkeep"

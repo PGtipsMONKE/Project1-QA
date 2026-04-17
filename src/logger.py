@@ -30,6 +30,8 @@ def generate_summary(files, moved_files, start_time, rules_source, ignored_files
     warnings = warnings or []
     total_files = len(files)
     valid_count = sum(1 for entry in moved_files if entry["valid"])
+    archived_count = sum(1 for entry in moved_files if entry.get("archived"))
+    processed_count = sum(1 for entry in moved_files if entry["valid"] and not entry.get("archived"))
     invalid_count = total_files - valid_count
     classification_counts = {}
     invalid_reason_counts = {}
@@ -51,6 +53,7 @@ def generate_summary(files, moved_files, start_time, rules_source, ignored_files
         "config_rules_source": rules_source,
         "base_directory": str(BASE_DIR),
         "input_folder": str(Path(__file__).resolve().parent.parent / "data" / "input"),
+        "archive_folder": str(Path(__file__).resolve().parent.parent / "data" / "archive"),
         "processed_folder": str(Path(__file__).resolve().parent.parent / "data" / "processed"),
         "quarantine_folder": str(Path(__file__).resolve().parent.parent / "data" / "quarantine"),
         "log_file": str(LOG_FILE.relative_to(BASE_DIR)),
@@ -60,7 +63,8 @@ def generate_summary(files, moved_files, start_time, rules_source, ignored_files
         "elapsed_seconds": elapsed.total_seconds(),
         "total_files_scanned": total_files,
         "ignored_files": [path.name for path in sorted(ignored_files, key=lambda p: p.name)],
-        "processed_files": valid_count,
+        "processed_files": processed_count,
+        "archived_files": archived_count,
         "quarantined_files": invalid_count,
         "valid_rate": round(valid_rate, 1),
         "invalid_rate": round(invalid_rate, 1),
@@ -79,6 +83,7 @@ def print_summary(files, moved_files, start_time, rules_source, ignored_files, w
     print(f"Config rules source: {summary['config_rules_source']}")
     print(f"Base directory: {summary['base_directory']}")
     print(f"Input folder: {summary['input_folder']}")
+    print(f"Archive folder: {summary['archive_folder']}")
     print(f"Processed folder: {summary['processed_folder']}")
     print(f"Quarantine folder: {summary['quarantine_folder']}")
     print(f"Log file: {summary['log_file']}")
@@ -92,6 +97,7 @@ def print_summary(files, moved_files, start_time, rules_source, ignored_files, w
         for filename in summary['ignored_files']:
             print(f"  {filename}")
     print(f"Processed files: {summary['processed_files']}")
+    print(f"Archived files: {summary['archived_files']}")
     print(f"Quarantined files: {summary['quarantined_files']}")
     print(f"Valid rate: {summary['valid_rate']:.1f}%")
     print(f"Invalid rate: {summary['invalid_rate']:.1f}%")

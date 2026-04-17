@@ -7,7 +7,7 @@ import argparse
 
 ROOT_DIR = Path(__file__).resolve().parent
 INPUT_DIR = ROOT_DIR / "data" / "input"
-SOURCE_DIRS = [ROOT_DIR / "data" / "processed", ROOT_DIR / "data" / "quarantine"]
+SOURCE_DIRS = [ROOT_DIR / "data" / "archive", ROOT_DIR / "data" / "processed", ROOT_DIR / "data" / "quarantine"]
 
 
 def collect_files(directories):
@@ -41,7 +41,7 @@ def restore_files(force: bool = False):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Restore moved files from processed/quarantine back into data/input."
+        description="Restore moved files from archive/processed/quarantine back into data/input."
     )
     parser.add_argument(
         "--force",

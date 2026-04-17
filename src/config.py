@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from pathlib import Path
 
 CONFIG_FILE = Path(__file__).resolve().parent.parent / "config" / "config.json"
@@ -16,7 +17,8 @@ DEFAULT_RULES = {
         "report": "report",
         "notes": "notes"
     },
-    "duplicate_policy": "quarantine"
+    "duplicate_policy": "quarantine",
+    "archive_before_date": None,
 }
 
 
@@ -103,6 +105,27 @@ def load_rules_from_config():
         rules["duplicate_policy"] = config["duplicate_policy"]
     elif "duplicate_policy" in config:
         message = "Ignored 'duplicate_policy' in config because it must be one of 'quarantine', 'overwrite', or 'rename'."
+        print(message)
+        warnings.append(message)
+
+    if config.get("archive_before_date") is None:
+        rules["archive_before_date"] = None
+    elif isinstance(config.get("archive_before_date"), str):
+        try:
+            rules["archive_before_date"] = datetime.strptime(config["archive_before_date"], rules["date_format"]).date()
+        except ValueError:
+            message = (
+                "Ignored 'archive_before_date' in config because it must match "
+                f"the configured date_format ({rules['date_format']})."
+            )
+            print(message)
+            warnings.append(message)
+        except Exception as exc:
+            message = f"Ignored 'archive_before_date' due to unexpected error: {exc}."
+            print(message)
+            warnings.append(message)
+    elif "archive_before_date" in config:
+        message = "Ignored 'archive_before_date' in config because it must be a string or null."
         print(message)
         warnings.append(message)
 
